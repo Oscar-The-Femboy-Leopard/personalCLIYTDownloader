@@ -6,6 +6,9 @@ from pytube.helpers import safe_filename
 from datetime import timedelta
 from enum import Enum
 
+
+os.chdir(os.path.join(os.environ['USERPROFILE'], 'Downloads'))
+
 if not os.path.exists("YT Downloads"):
     os.mkdir("YT Downloads")
 
@@ -81,9 +84,6 @@ def VidDownload():
     yt = YouTube(link, use_oauth=True, on_progress_callback=on_progress)
     ys = yt.streams
 
-    os.chdir(os.path.join(os.environ['USERPROFILE'], 'Downloads'))
-    os.listdir()
-
     info = f'{safe_filename(yt.author + " - " + yt.title)}.mp4'
 
     if info in OP:
@@ -102,7 +102,7 @@ def VidDownload():
     download.download(output_path=OP, filename=f"{info}", max_retries=3)
 
     print(f"{green}→Successful!")
-    print(f"{white}     ↪Saved in Downloads: {OP}{info}")
+    print(f"{white}     ↪Saved in {os.environ['USERPROFILE']}\\Downloads\\{OP}\\{info}")
     print(f"     File Size: {download.filesize_kb}kb || {download.filesize_mb}mb")
     print("-" * 40 + "\n")
 
@@ -119,8 +119,6 @@ def AudDownload():
     yt = YouTube(link, use_oauth=True, on_progress_callback=on_progress)
     ys = yt.streams.filter(only_audio=True).first()
 
-    os.chdir(os.path.join(os.environ['USERPROFILE'], 'Downloads'))
-
     info = f'{safe_filename(yt.author + " - " + yt.title)}.mp3'
 
     if info in OP:
@@ -135,11 +133,10 @@ def AudDownload():
     print("Number of views: ", views)
     print("Length of video: ", dur)
 
-    # download = ys.get_highest_resolution()
     ys.download(output_path=OP, filename=f"{info}", max_retries=3)
 
     print(f"{green}→Successful!")
-    print(f"{white}     ↪Saved in Downloads: {OP}{info}")
+    print(f"{white}     ↪Saved in {os.environ['USERPROFILE']}\\Downloads\\{OP}\\{info}")
     print(f"     File Size: {ys.filesize_kb}kb || {ys.filesize_mb}mb")
     print("-" * 40 + "\n")
 
