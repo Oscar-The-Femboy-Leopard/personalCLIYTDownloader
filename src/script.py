@@ -12,9 +12,9 @@ if not os.path.exists("YT Downloads"):
 OP: str = "YT Downloads"
 
 
-white = ""
-red = "\033[31m"
 green = "\n\033[32m"
+red = "\033[31m"
+white = "\033[37m"
 
 
 class ReturnCodes(Enum):
@@ -93,7 +93,7 @@ def VidDownload():
     dur = timedelta(seconds=yt.length)
 
     print(f"{green}Successful! Found the video. Commencing download.")
-    print("\033[37mTitle: ", yt.title)
+    print(f"{white}Title: ", yt.title)
     print("Uploader: ", yt.author)
     print("Number of views: ", views)
     print("Length of video: ", dur)
@@ -101,8 +101,8 @@ def VidDownload():
     download = ys.get_highest_resolution()
     download.download(output_path=OP, filename=f"{info}", max_retries=3)
 
-    print(f"\033[32m→Successful!")
-    print(f"\033[37m     ↪Saved in Downloads: {OP}{info}")
+    print(f"{green}→Successful!")
+    print(f"{white}     ↪Saved in Downloads: {OP}{info}")
     print(f"     File Size: {download.filesize_kb}kb || {download.filesize_mb}mb")
     print("-" * 40 + "\n")
 
@@ -111,7 +111,10 @@ def AudDownload():
     link = input(str("Enter the link for the youtube video audio you want to download:\n>> "))
 
     if link == "exit":
-        return print("\033[31mYou have exited the program. Have a great day!")
+        return ReturnCodes.UserQuit
+
+    if link == "back":
+        return ReturnCodes.Back
 
     yt = YouTube(link, use_oauth=True, on_progress_callback=on_progress)
     ys = yt.streams.filter(only_audio=True).first()
@@ -126,8 +129,8 @@ def AudDownload():
     views = prettify_numb(f"{yt.views}")
     dur = timedelta(seconds=yt.length)
 
-    print("\n\033[32mSuccessful! Found the video. Commencing download.")
-    print("\033[37mTitle: ", yt.title)
+    print(f"{green}Successful! Found the video. Commencing download.")
+    print(f"{white}Title: ", yt.title)
     print("Uploader: ", yt.author)
     print("Number of views: ", views)
     print("Length of video: ", dur)
@@ -135,8 +138,8 @@ def AudDownload():
     # download = ys.get_highest_resolution()
     ys.download(output_path=OP, filename=f"{info}", max_retries=3)
 
-    print(f"\033[32m→Successful!")
-    print(f"\033[37m     ↪Saved in Downloads: {OP}{info}")
+    print(f"{green}→Successful!")
+    print(f"{white}     ↪Saved in Downloads: {OP}{info}")
     print(f"     File Size: {ys.filesize_kb}kb || {ys.filesize_mb}mb")
     print("-" * 40 + "\n")
 
