@@ -37,7 +37,7 @@ def codes(value: str):
 
 def mainRun():
     while True:
-        option = input(str("Video or Audio?\n>> ")).lower()
+        option = input("Video or Audio?\n>> ").lower()
 
         if option == 'video':
             ret = VidDownload()
@@ -73,7 +73,7 @@ def prettify_numb(number: str) -> str:
 
 
 def VidDownload():
-    link = input(str("Enter the link for the youtube video you want to download:\n>> "))
+    link = input("Enter the link for the youtube video you want to download:\n>> ")
 
     if link == "exit":
         return ReturnCodes.UserQuit
@@ -108,7 +108,7 @@ def VidDownload():
 
 
 def AudDownload():
-    link = input(str("Enter the link for the youtube video audio you want to download:\n>> "))
+    link = input("Enter the link for the youtube video audio you want to download:\n>> ")
 
     if link == "exit":
         return ReturnCodes.UserQuit
