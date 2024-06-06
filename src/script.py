@@ -1,13 +1,15 @@
 import os
+import ctypes
 
-from pytube import YouTube
-from pytube.cli import on_progress
-from pytube.helpers import safe_filename
+from pytubefix import YouTube
+from pytubefix.cli import on_progress
+from pytubefix.helpers import safe_filename
 from datetime import timedelta
 from enum import Enum
 
 
 os.chdir(os.path.join(os.environ['USERPROFILE'], 'Downloads'))
+ctypes.windll.kernel32.SetConsoleTitleW("YouTube Downloader")
 
 if not os.path.exists("YT Downloads"):
     os.mkdir("YT Downloads")
@@ -45,8 +47,11 @@ def mainRun():
         if option == 'audio':
             ret = AudDownload()
 
+        if option == 'caption':
+            ret = CapDownload()
+
         if ret is ReturnCodes.UserQuit:
-            print(f"{red}You have exited the program. Have a great day!")
+            print(f"{red}You have exited the program. Have a great day!{white}")
             break
 
 
@@ -81,10 +86,16 @@ def VidDownload():
     if link == "back":
         return ReturnCodes.Back
 
-    yt = YouTube(link, use_oauth=True, on_progress_callback=on_progress)
+    yt = YouTube(link, use_oauth=False, allow_oauth_cache=True, on_progress_callback=on_progress)
     ys = yt.streams
 
-    info = f'{safe_filename(yt.author + " - " + yt.title)}.mp4'
+    '''if "vevo" in yt.author.lower():
+        auth = yt.author.sp'''
+
+    if yt.author in yt.title:
+        info = f'{safe_filename(yt.title)}.mp4'
+    else:
+        info = f'{safe_filename(yt.author + " - " + yt.title)}.mp4'
 
     if info in OP:
         return print("This video is already in the folder. Please choose another.")
@@ -93,17 +104,22 @@ def VidDownload():
     dur = timedelta(seconds=yt.length)
 
     print(f"{green}Successful! Found the video. Commencing download.")
-    print(f"{white}Title: ", yt.title)
-    print("Uploader: ", yt.author)
-    print("Number of views: ", views)
-    print("Length of video: ", dur)
+    print(f"{white}Title           : ", yt.title)
+    print("Uploader        : ", yt.author)
+    print("Number of views : ", views)
+    print("Length of video : ", dur)
 
     download = ys.get_highest_resolution()
     download.download(output_path=OP, filename=f"{info}", max_retries=3)
 
+    if download.filesize_mb > 1024:
+        size = f"{round(download.filesize_gb, 2)}gb"
+    else:
+        size = f"{round(download.filesize_mb, 2)}mb"
+
     print(f"{green}→Successful!")
-    print(f"{white}     ↪Saved in {os.environ['USERPROFILE']}\\Downloads\\{OP}\\{info}")
-    print(f"     File Size: {download.filesize_kb}kb || {download.filesize_mb}mb")
+    print(f"{white}     ↪ Saved in {os.environ['USERPROFILE']}\\Downloads\\{OP}\\{info}")
+    print(f"     File Size: {download.filesize_kb}kb || {size}")
     print("-" * 40 + "\n")
 
 
@@ -116,10 +132,13 @@ def AudDownload():
     if link == "back":
         return ReturnCodes.Back
 
-    yt = YouTube(link, use_oauth=True, on_progress_callback=on_progress)
+    yt = YouTube(link, use_oauth=False, on_progress_callback=on_progress)
     ys = yt.streams.filter(only_audio=True).first()
 
-    info = f'{safe_filename(yt.author + " - " + yt.title)}.mp3'
+    if yt.author in yt.title:
+        info = f'{safe_filename(yt.title)}.mp3'
+    else:
+        info = f'{safe_filename(yt.author + " - " + yt.title)}.mp3'
 
     if info in OP:
         return print("This video is already in the folder. Please choose another.")
@@ -128,16 +147,54 @@ def AudDownload():
     dur = timedelta(seconds=yt.length)
 
     print(f"{green}Successful! Found the video. Commencing download.")
-    print(f"{white}Title: ", yt.title)
-    print("Uploader: ", yt.author)
-    print("Number of views: ", views)
-    print("Length of video: ", dur)
+    print(f"{white}Title           : ", yt.title)
+    print("Uploader        : ", yt.author)
+    print("Number of views : ", views)
+    print("Length of audio : ", dur)
 
     ys.download(output_path=OP, filename=f"{info}", max_retries=3)
 
+    if ys.filesize_mb > 1024:
+        size = f"{round(ys.filesize_gb, 2)}gb"
+    else:
+        size = f"{round(ys.filesize_mb, 2)}mb"
+
+    print(f"{green}→Successful!")
+    print(f"{white}     ↪ Saved in {os.environ['USERPROFILE']}\\Downloads\\{OP}\\{info}")
+    print(f"     File Size: {ys.filesize_kb}kb || {size}")
+    print("-" * 40 + "\n")
+
+
+def CapDownload():
+    link = input("Enter the link for the youtube video captions you want to download:\n>> ")
+
+    if link == "exit":
+        return ReturnCodes.UserQuit
+
+    if link == "back":
+        return ReturnCodes.Back
+
+    yt = YouTube(link, use_oauth=False, on_progress_callback=on_progress)
+
+    langCode = input(f"Enter the language code you wish to have out of:\n{yt.captions}\n>> ")
+
+    info = f'{safe_filename(yt.author + " - " + yt.title)}.srt'
+
+    if info in OP:
+        return print("This video is already in the folder. Please choose another.")
+
+    print(f"{green}Successful! Found the video captions. Commencing download.")
+    print(f"{white}Title           : ", yt.title)
+    print("Uploader        : ", yt.author)
+
+    caption = yt.captions.get_by_language_code(lang_code=langCode)
+    caption.generate_srt_captions()
+    print(caption)
+    caption.download(title=yt.title, output_path=OP)
+
     print(f"{green}→Successful!")
     print(f"{white}     ↪Saved in {os.environ['USERPROFILE']}\\Downloads\\{OP}\\{info}")
-    print(f"     File Size: {ys.filesize_kb}kb || {ys.filesize_mb}mb")
+    # print(f"     File Size: {download.filesize_kb}kb || {download.filesize_mb}mb")
     print("-" * 40 + "\n")
 
 
