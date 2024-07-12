@@ -3,7 +3,8 @@ This is just a simple CLI based YouTube downloader using Python. It's more for m
 it and developing it for myself as others to use. It's going to be built by me and maintained in my free time. Hope you
 find it useful! The default download path is `%userprofile%/Downloads` or `C:\Users\<AccName>\Downloads` and it will
 make its own folder there called `YT Downloads` (or the custom location if no folder exists - once I get that
-integrated). 
+integrated). The playlist downloads have a custom folder inside `YT Downloads` called `Playlist Download` to separate it
+for viewing ease. 
 
 # Why did I decide to build this instead of using one of the many websites currently out there?
 The answer is simple! I am bored with trying to find the least sketchy YouTube video downloader to use which won't
